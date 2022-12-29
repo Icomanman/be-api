@@ -1,0 +1,371 @@
+---
+openapi: 3.0.0
+info:
+  title: Reports
+  description: Report Data Endpoints
+  version: 1.0.0-oas3
+tags:
+  - name: dev
+    description: Report Data Endpoints
+paths:
+  /reports/new:
+    post:
+      tags:
+        - dev
+      summary: Adds a report for a specific tract
+      description: |
+        Adds a report for a specific tract
+      parameters:
+        - name: Bearer Token
+          in: header
+          required: false
+          style: simple
+          explode: false
+          description: JSON Web Token
+          schema:
+            type: string
+            example: JWT Token
+      requestBody:
+        description: The product data
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/new_report"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/success"
+                  - properties:
+                      msg:
+                        type: string
+                        example: Report successfully added.
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fail"
+  /reports/update:
+    post:
+      tags:
+        - dev
+      summary: Updates a report for a specific tract
+      description: |
+        Updates a report for a specific tract
+      parameters:
+        - name: Bearer Token
+          in: header
+          required: false
+          style: simple
+          explode: false
+          description: JSON Web Token
+          schema:
+            type: string
+            example: JWT Token
+      requestBody:
+        description: The report data, including the id
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/existing_report"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/success"
+                  - properties:
+                      msg:
+                        type: string
+                        example: Report successfully updated.
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fail"
+  /reports/archive:
+    post:
+      tags:
+        - dev
+      summary: Archives a specific report
+      description: |
+        Archives a specific report
+      parameters:
+        - name: Bearer Token
+          in: header
+          required: false
+          style: simple
+          explode: false
+          description: JSON Web Token
+          schema:
+            type: string
+            example: JWT Token
+      requestBody:
+        description: The report id
+        content:
+          application/json:
+            schema:
+              required:
+                - report_id
+              properties:
+                report_id:
+                  type: number
+                  example: 1
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                properties:
+                  msg:
+                    type: string
+                    example: Report successfully archived.
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fail"
+  /reports/{company_id}{tract_key}:
+    get:
+      tags:
+        - dev
+      summary: Extracts report(s)
+      description: |
+        Per **company** or by **tract**, depending on the parameters.
+        By tract extraction will include further details under field data **(e.g. products, tickets, loads, etc)**
+      parameters:
+        - name: Bearer Token
+          in: header
+          required: false
+          style: simple
+          explode: false
+          description: JSON Web Token
+          schema:
+            type: string
+            example: JWT Token
+        - name: company_id
+          in: query
+          schema:
+            type: number
+            example: 1
+        - name: tract_key
+          in: query
+          schema:
+            type: number
+            example: 1
+      responses:
+        "200":
+          description: The existing reports data
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/success"
+                  - properties:
+                      msg:
+                        type: string
+                        example: ""
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/existing_report"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fail"
+  /reports/dates{tract_key}:
+    get:
+      tags:
+        - dev
+      summary: Extracts dates in which reports are available
+      description: |
+        Extracts dates in which reports are available based on **tickets**
+      parameters:
+        - name: Bearer Token
+          in: header
+          required: false
+          style: simple
+          explode: false
+          description: JSON Web Token
+          schema:
+            type: string
+            example: JWT Token
+        - name: tract_key
+          in: query
+          schema:
+            type: number
+            example: 1
+      responses:
+        "200":
+          description: The dates with available tickets
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/success"
+                  - properties:
+                      msg:
+                        type: string
+                        example: Ticket date extraction successful.
+                      data:
+                        type: object
+                        properties:
+                          start:
+                            type: object
+                            properties:
+                              date:
+                                type: string
+                                example: 2022-07-19T22:02:23
+                          end:
+                            type: object
+                            properties:
+                              date:
+                                type: string
+                                example: 2022-07-19T22:02:23
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fail"
+  /reports/fields:
+    get:
+      tags:
+        - dev
+      summary: Extracts report fields available as reference
+      description: |
+        Extracts report fields available as reference
+      parameters:
+        - name: Bearer Token
+          in: header
+          required: false
+          style: simple
+          explode: false
+          description: JSON Web Token
+          schema:
+            type: string
+            example: JWT Token
+      responses:
+        "200":
+          description: Report fields
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/success"
+                  - properties:
+                      msg:
+                        type: string
+                        example: fields extraction successful.
+                      data:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: number
+                              example: 1
+                            name:
+                              type: string
+                              example: Ticket No.
+                            src_table:
+                              type: string
+                              example: ticket
+
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fail"
+components:
+  schemas:
+    bool_true:
+      type: boolean
+      example: true
+    bool_false:
+      type: boolean
+      example: false
+    err_msg:
+      type: string
+      example: Report addtion failed - possible existing record(s) OR No existing record(s)
+    fail:
+      type: object
+      properties:
+        success:
+          $ref: "#/components/schemas/bool_false"
+        msg:
+          $ref: "#/components/schemas/err_msg"
+    success:
+      type: object
+      properties:
+        success:
+          $ref: "#/components/schemas/bool_true"
+    new_report:
+      required:
+        - title
+        - company_id
+        - tract_key
+        - type
+        - start_date
+        - end_date
+        - product_ids
+        - mills
+        - with_image
+      properties:
+        title:
+          type: string
+          example: Land Owner Report No. 1
+        company_id:
+          type: number
+          example: 1
+        tract_key:
+          type: number
+          example: 1
+        type:
+          type: string
+          example: Land Owner Settlement
+        field_ids:
+          type: array
+          items:
+            type: number
+            example: [1, 2, 3, 4]
+        start_date:
+          type: string
+          example: 2022-05-24 20:15:23
+        end_date:
+          type: string
+          example: 2022-05-24 20:15:23
+        product_ids:
+          type: array
+          items:
+            type: number
+            example: [1, 2, 3, 4]
+        mills:
+          type: array
+          items:
+            type: string
+            example: [Georgia, Virginia]
+        with_image:
+          type: boolean
+          example: false
+    existing_report:
+      required:
+        - id
+      allOf:
+        - properties:
+            id:
+              type: number
+              example: 1
+        - $ref: "#/components/schemas/new_report"

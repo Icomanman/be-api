@@ -1,0 +1,517 @@
+openapi: 3.0.0
+info:
+  title: Tract Project Endpoints
+  description: Tract Project Endpoints
+  version: 1.0.0-oas3
+servers:
+  - url: https://virtserver.swaggerhub.com/micoPhD/spruce-dev-projects/1.0.0
+tags:
+  - name: dev
+    description: Endpoints available for tract projects
+paths:
+  /projects:
+    get:
+      tags:
+        - dev
+      summary: Gets available projects
+      parameters:
+        - in: query
+          name: user_id
+          description: The company user id
+          schema:
+            type: integer
+            example: 1
+        - name: Bearer Token
+          in: header
+          required: false
+          style: simple
+          explode: false
+          description: >-
+            Token must be valid to be able to create new project, *i.e. not
+            expired*
+          schema:
+            type: string
+            example: JWT Token
+      description: |
+        Requests accessible projects
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/project'
+        '400':
+          description: Bad request
+        '401':
+          description: Unauthorized
+  /projects/new:
+    post:
+      tags:
+        - dev
+      summary: Creates a new tract endpoint
+      description: ''
+      parameters:
+        - name: Bearer Token
+          in: header
+          required: false
+          style: simple
+          explode: false
+          description: >-
+            Token must be valid to be able to create new project, *i.e. not
+            expired*
+          schema:
+            type: string
+            example: JWT Token
+      requestBody:
+        description: >-
+          Requires the **name** of the tract and other details. The
+          **consultant** data is *optional*
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+                - with_consultant
+              $ref: '#/components/schemas/new_project'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/success'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/fail'
+  /projects/edit:
+    post:
+      tags:
+        - dev
+      summary: Edits existing tract endpoint
+      description: ''
+      parameters:
+        - name: Bearer Token
+          in: header
+          required: false
+          style: simple
+          explode: false
+          description: >-
+            Token must be valid to be able to create new project, *i.e. not
+            expired*
+          schema:
+            type: string
+            example: JWT Token
+      requestBody:
+        description: >-
+          Requires the **name** of the tract and other details. The
+          **consultant** data is *optional*
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+                - with_consultant
+              $ref: '#/components/schemas/new_project'
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/success'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/fail'
+components:
+  schemas:
+    project:
+      type: object
+      required:
+        - name
+        - company_ids
+        - owner
+        - owner_type
+        - id
+        - state
+        - county
+        - with_consultant
+      properties:
+        company_ids:
+          type: integer
+          example:
+            - 1
+            - 3
+            - 6
+        name:
+          type: string
+          example: Aspen Oregon Tract
+        owner_type:
+          type: string
+          example: business (or individual)
+        owner:
+          type: object
+          anyOf:
+            - type: object
+              required:
+                - name
+                - contact
+                - email
+                - phone
+                - street
+                - city
+                - state
+                - zip
+              properties:
+                name:
+                  type: string
+                  example: Tract Holdings LLC.
+                contact:
+                  type: string
+                  example: Ginger Baker
+                email:
+                  type: string
+                  example: gbaker@tracts.com
+                phone:
+                  type: string
+                  example: 17775554321
+                street:
+                  type: string
+                  example: Center St.
+                city:
+                  type: string
+                  example: Des Moines
+                state:
+                  type: string
+                  example: Iowa
+                zip:
+                  type: integer
+                  example: 50309
+            - type: object
+              required:
+                - given_name
+                - family_name
+                - email
+                - phone
+                - street
+                - city
+                - state
+                - zip
+              properties:
+                given_name:
+                  type: string
+                  example: Roger
+                family_name:
+                  type: string
+                  example: Waters
+                email:
+                  type: string
+                  example: waters@gmail.com
+                phone:
+                  type: string
+                  example: 14445554321
+                street:
+                  type: string
+                  example: Walnut St.
+                city:
+                  type: string
+                  example: Seattle
+                state:
+                  type: string
+                  example: Washington
+                zip:
+                  type: integer
+                  example: 98116
+        id:
+          type: integer
+          example: 3640012
+        start:
+          type: string
+          example: '2022-04-29'
+        state:
+          type: string
+          example: Oregon
+        county:
+          type: string
+          example: County
+        open_loads:
+          type: integer
+          example: 6
+        total:
+          type: number
+          example: 236.8
+        with_consultant:
+          type: boolean
+          example: true
+        consultant:
+          type: object
+          required:
+            - name
+            - contact
+            - email
+            - phone
+            - street
+            - city
+            - state
+            - zip
+          properties:
+            name:
+              type: string
+              example: Timber Consultants, Inc.
+            contact:
+              type: string
+              example: Eric Clapton
+            email:
+              type: string
+              example: ec@timber.com
+            phone:
+              type: string
+              example: 18887776543
+            street:
+              type: string
+              example: 80th St.
+            city:
+              type: string
+              example: Virginia Beach
+            state:
+              type: string
+              example: Virginia
+            zip:
+              type: integer
+              example: 23451
+        consultant_id:
+          type: number
+          example: 2
+        status:
+          type: string
+          example: draft, active or inactive
+        load_ids:
+          type: integer
+          example:
+            - 1
+            - 2
+            - 3
+        product_ids:
+          type: integer
+          example:
+            - 5
+            - 6
+        products:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: number
+                example: 1
+              name:
+                type: string
+                example: Southern Red Oak
+              number:
+                type: number
+                example: 5566
+              company_id:
+                type: number
+                example: 1
+              species_name:
+                type: string
+                example: Oak
+              tract_key:
+                type: number
+                example: 1
+              mill_location:
+                type: string
+                example: Sawmill Dusters LLC
+              distance_to_mill:
+                type: number
+                example: 12.6
+              delivered_rate:
+                type: number
+                example: 77
+              mileage_rate:
+                type: number
+                example: 0.55
+              stump_rate:
+                type: number
+                example: 12.5
+              commission:
+                type: number
+                example: 1.25
+              cut_rate:
+                type: number
+                example: 1
+    new_project:
+      type: object
+      required:
+        - name
+        - company_ids
+        - owner
+        - owner_type
+        - id
+        - state
+        - county
+        - with_consultant
+      properties:
+        company_ids:
+          type: integer
+          example:
+            - 1
+            - 3
+            - 6
+        name:
+          type: string
+          example: Aspen Oregon Tract
+        owner_type:
+          type: string
+          example: business (or individual)
+        owner:
+          type: object
+          anyOf:
+            - type: object
+              required:
+                - name
+                - contact
+                - email
+                - phone
+                - street
+                - city
+                - state
+                - zip
+              properties:
+                name:
+                  type: string
+                  example: Tract Holdings LLC.
+                contact:
+                  type: string
+                  example: Ginger Baker
+                email:
+                  type: string
+                  example: gbaker@tracts.com
+                phone:
+                  type: string
+                  example: 17775554321
+                street:
+                  type: string
+                  example: Center St.
+                city:
+                  type: string
+                  example: Des Moines
+                state:
+                  type: string
+                  example: Iowa
+                zip:
+                  type: integer
+                  example: 50309
+            - type: object
+              required:
+                - given_name
+                - family_name
+                - email
+                - phone
+                - street
+                - city
+                - state
+                - zip
+              properties:
+                given_name:
+                  type: string
+                  example: Roger
+                family_name:
+                  type: string
+                  example: Waters
+                email:
+                  type: string
+                  example: waters@gmail.com
+                phone:
+                  type: string
+                  example: 14445554321
+                street:
+                  type: string
+                  example: Walnut St.
+                city:
+                  type: string
+                  example: Seattle
+                state:
+                  type: string
+                  example: Washington
+                zip:
+                  type: integer
+                  example: 98116
+        id:
+          type: integer
+          example: 3640012
+        start:
+          type: string
+          example: '2022-04-29'
+        state:
+          type: string
+          example: Oregon
+        county:
+          type: string
+          example: County
+        with_consultant:
+          type: boolean
+          example: true
+        consultant:
+          type: object
+          required:
+            - name
+            - contact
+            - email
+            - phone
+            - street
+            - city
+            - state
+            - zip
+          properties:
+            name:
+              type: string
+              example: Timber Consultants, Inc.
+            contact:
+              type: string
+              example: Eric Clapton
+            email:
+              type: string
+              example: ec@timber.com
+            phone:
+              type: string
+              example: 18887776543
+            street:
+              type: string
+              example: 80th St.
+            city:
+              type: string
+              example: Virginia Beach
+            state:
+              type: string
+              example: Virginia
+            zip:
+              type: integer
+              example: 23451
+    bool_true:
+      type: boolean
+      example: true
+    bool_false:
+      type: boolean
+      example: false
+    err_msg:
+      type: string
+      example: error message
+    fail:
+      type: object
+      properties:
+        success:
+          $ref: '#/components/schemas/bool_false'
+        msg:
+          $ref: '#/components/schemas/err_msg'
+    success:
+      type: object
+      properties:
+        success:
+          $ref: '#/components/schemas/bool_true'

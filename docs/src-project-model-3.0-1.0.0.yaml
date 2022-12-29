@@ -1,0 +1,154 @@
+---
+openapi: 3.0.0
+info:
+  title: Tract Project Endpoints
+  description: Tract Project Endpoints
+  version: 1.0.0-oas3
+servers:
+  - url: https://virtserver.swaggerhub.com/micoPhD/spruce-dev-projects/1.0.0
+tags:
+  - name: dev
+    description: Endpoints available for tract projects
+paths:
+  /projects:
+    get:
+      tags:
+        - dev
+      summary: Gets available projects
+      parameters:
+        - in: query
+          name: user_id
+          description: The company user id
+          schema:
+            type: integer
+            example: 1
+        - name: Bearer Token
+          in: header
+          required: false
+          style: simple
+          explode: false
+          description: >-
+            Token must be valid to be able to create new project, *i.e. not
+            expired*
+          schema:
+            type: string
+            example: JWT Token
+      description: |
+        Requests accessible projects
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/project"
+        "400":
+          description: Bad request
+        "401":
+          description: Unauthorized
+  /projects/new:
+    post:
+      tags:
+        - dev
+      summary: Creates a new tract endpoint
+      description: ""
+      parameters:
+        - name: Bearer Token
+          in: header
+          required: false
+          style: simple
+          explode: false
+          description: Token must be valid to be able to create new project, *i.e. not expired*
+          schema:
+            type: string
+            example: JWT Token
+      requestBody:
+        description: Requires the **name** of the tract and other details. The **consultant** data is *optional*
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+                - with_consultant
+              $ref: "#/components/schemas/new_project"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fail"
+  /projects/edit:
+    post:
+      tags:
+        - dev
+      summary: Edits existing tract endpoint
+      description: ""
+      parameters:
+        - name: Bearer Token
+          in: header
+          required: false
+          style: simple
+          explode: false
+          description: >-
+            Token must be valid to be able to create new project, *i.e. not
+            expired*
+          schema:
+            type: string
+            example: JWT Token
+      requestBody:
+        description: >-
+          Requires the **name** of the tract and other details. The **consultant** data is *optional*
+        content:
+          application/json:
+            schema:
+              required:
+                - name
+                - with_consultant
+              $ref: "#/components/schemas/new_project"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/success"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fail"
+components:
+  schemas:
+    project:
+      $ref: "./project_models/tract.yaml"
+    new_project:
+      $ref: "./project_models/new_tract.yaml"
+    bool_true:
+      type: boolean
+      example: true
+    bool_false:
+      type: boolean
+      example: false
+    err_msg:
+      type: string
+      example: error message
+    fail:
+      type: object
+      properties:
+        success:
+          $ref: "#/components/schemas/bool_false"
+        msg:
+          $ref: "#/components/schemas/err_msg"
+    success:
+      type: object
+      properties:
+        success:
+          $ref: "#/components/schemas/bool_true"

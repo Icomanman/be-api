@@ -1,0 +1,215 @@
+---
+openapi: 3.0.0
+info:
+  title: Login Flow Endpoints
+  description: Login Flow Endpoints
+  version: 1.0.0-oas3
+servers:
+  - url: https://virtserver.swaggerhub.com/micoPhD/spruce-dev-endpoints/1.0.0
+tags:
+  - name: dev
+    description: Login Endpoints
+paths:
+  /api/login:
+    post:
+      tags:
+        - dev
+      summary: User login endpoint
+      description: |
+        Handles user login in 2 ways:
+
+        1). By checking bearer token against Cognito. Directly authenticates the user if token is (still) valid, i.e., email and password will no longer be checked; and 
+
+        2). If token is invalid or not sent, email and password are checked against Cognito User Pools and generates new token in exchange for valid credentials. 
+        For first time users, passwords need to be changed via the /api/reset-password endpoint
+      parameters:
+        - name: Bearer Token
+          in: header
+          required: false
+          style: simple
+          explode: false
+          description: ""
+          schema:
+            type: string
+            example: JWT Token
+      requestBody:
+        description: Required for first-time login or when token is expired
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/login_body"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/success"
+                  - $ref: "#/components/schemas/token_response"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fail"
+  /api/admin/refresh-token:
+    post:
+      tags:
+        - dev
+      summary: Refresh token endpoint to extend user session
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                mobile:
+                  type: boolean
+                  example: false
+                refresh_token:
+                  type: string
+                  example: "{{refresh_token}}"
+      responses:
+        "200":
+          description: Succes
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  msg:
+                    type: string
+                    example: success
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fail"
+  /api/admin/forgot-password{email}{key}:
+    post:
+      tags:
+        - dev
+      summary: Reset (forgotten) password endpoint
+      parameters:
+        - name: key
+          in: path
+          required: true
+          style: simple
+          explode: false
+          description: >-
+            Verification Token (temporary password)
+            Temporary credentials generated from the backend, *i.e. temporary password*
+          schema:
+            type: string
+        - name: email
+          in: path
+          required: true
+          style: simple
+          explode: false
+          description: User email
+          schema:
+            type: string
+      requestBody:
+        content:
+          application/json:
+            schema:
+              properties:
+                email:
+                  type: string
+                  example: rob@phdlabs.com
+      responses:
+        "200":
+          description: Succes
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  msg:
+                    type: string
+                    example: success
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fail"
+components:
+  schemas:
+    bool_true:
+      type: boolean
+      example: true
+    bool_false:
+      type: boolean
+      example: false
+    err_msg:
+      type: string
+      example: error message
+    fail:
+      type: object
+      properties:
+        success:
+          $ref: "#/components/schemas/bool_false"
+        msg:
+          $ref: "#/components/schemas/err_msg"
+    success:
+      type: object
+      properties:
+        success:
+          $ref: "#/components/schemas/bool_true"
+    user_data:
+      required:
+        - email
+        - family_name
+        - given_name
+        - password
+      type: object
+      properties:
+        given_name:
+          type: string
+          example: Jack
+        family_name:
+          type: string
+          example: Bruce
+        email:
+          type: string
+          format: string
+          example: jackbruce@gmail.com
+        password:
+          type: string
+          format: password
+          example: min. 8 char
+        phone:
+          type: string
+          example: +16665554321
+        user_type:
+          type: string
+          example: admin
+        company:
+          type: string
+          example: Timber Rockers
+    login_body:
+      type: object
+      properties:
+        email:
+          type: string
+          example: jackbruce@gmail.com
+        password:
+          type: string
+          example: inD@Wh1teRO0m!
+    token_response:
+      allOf:
+        - $ref: "#/components/schemas/success"
+        - type: object
+          properties:
+            token:
+              type: string
+              example: "...JWT Token"
+            misc:
+              type: string
+              example: "{{refresh_token}}"

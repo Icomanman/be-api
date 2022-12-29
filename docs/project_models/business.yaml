@@ -1,0 +1,36 @@
+---
+type: object
+required:
+  - name
+  - contact
+  - email
+  - phone
+  - street
+  - city
+  - state
+  - zip
+properties:
+  name:
+    type: string
+    example: Illegal Logging LLC
+  contact:
+    type: string
+    example: Jack Bruce
+  email:
+    type: string
+    example: jackbruce@legals.com
+  phone:
+    type: string
+    example: +16665554321
+  street:
+    type: string
+    example: Marion St.
+  city:
+    type: string
+    example: Salem
+  state:
+    type: string
+    example: Oregon
+  zip:
+    type: integer
+    example: 97301

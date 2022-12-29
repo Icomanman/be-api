@@ -1,0 +1,16 @@
+# inherits the business schema
+type: object
+properties:
+  name:
+    type: string
+    example: The Millers Company
+  admin_users:
+    type: integer
+    example: [1, 3, 6]
+  mob_users:
+    type: integer
+    example: [15, 31, 62]
+  products:
+    type: array
+    items:
+      $ref: "./product.yaml"

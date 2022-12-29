@@ -1,0 +1,323 @@
+---
+openapi: 3.0.0
+info:
+  title: Products
+  description: Product Data Endpoints
+  version: 1.0.0-oas3
+tags:
+  - name: dev
+    description: Product Data Endpoints
+paths:
+  /products/new:
+    post:
+      tags:
+        - dev
+      summary: Adds a product for a specific company
+      description: |
+        Adds a product for a specific company
+      parameters:
+        - name: Bearer Token
+          in: header
+          required: false
+          style: simple
+          explode: false
+          description: JSON Web Token
+          schema:
+            type: string
+            example: JWT Token
+      requestBody:
+        description: The product data
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/new_product"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/success"
+                  - properties:
+                      msg:
+                        type: string
+                        example: Product successfully added.
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fail"
+  /products/edit:
+    post:
+      tags:
+        - dev
+      summary: Updates a product for a specific company
+      description: |
+        Updates a product for a specific company
+      parameters:
+        - name: Bearer Token
+          in: header
+          required: false
+          style: simple
+          explode: false
+          description: JSON Web Token
+          schema:
+            type: string
+            example: JWT Token
+      requestBody:
+        description: The product data
+        content:
+          application/json:
+            schema:
+              allOf:
+                - properties:
+                    id:
+                      type: number
+                      example: 5
+                - $ref: "#/components/schemas/new_product"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/success"
+                  - properties:
+                      msg:
+                        type: string
+                        example: Product successfully updated.
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fail"
+  /products{product_id}:
+    get:
+      tags:
+        - dev
+      summary: Extracts a product based on id
+      description: |
+        Extracts a product based on id
+      parameters:
+        - name: Bearer Token
+          in: header
+          required: false
+          style: simple
+          explode: false
+          description: JSON Web Token
+          schema:
+            type: string
+            example: JWT Token
+        - name: product_id
+          in: path
+          required: true
+          style: simple
+          explode: false
+          description: product id
+          schema:
+            type: number
+            example: 6
+      responses:
+        "200":
+          description: The Product Data
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/success"
+                  - properties:
+                      msg:
+                        type: string
+                        example: Product successfully extracted.
+                      data:
+                        type: object
+                        properties:
+                          products:
+                            type: array
+                            items:
+                              $ref: "#/components/schemas/existing_product"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fail"
+  /products/mills{company_id}:
+    get:
+      tags:
+        - dev
+      summary: Extracts available mill locations for the company
+      description: |
+        Extracts available mill locations for the company
+      parameters:
+        - name: Bearer Token
+          in: header
+          required: false
+          style: simple
+          explode: false
+          description: JSON Web Token
+          schema:
+            type: string
+            example: JWT Token
+        - name: company_id
+          in: path
+          required: true
+          style: simple
+          explode: false
+          description: company id
+          schema:
+            type: number
+            example: 2
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/success"
+                  - properties:
+                      msg:
+                        type: string
+                        example: ""
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/mill_spec"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fail"
+  /products/species{company_id}:
+    get:
+      tags:
+        - dev
+      summary: Extracts available species for the company
+      description: |
+        Extracts available species for the company
+      parameters:
+        - name: Bearer Token
+          in: header
+          required: false
+          style: simple
+          explode: false
+          description: JSON Web Token
+          schema:
+            type: string
+            example: JWT Token
+        - name: company_id
+          in: path
+          required: true
+          style: simple
+          explode: false
+          description: company id
+          schema:
+            type: number
+            example: 2
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/success"
+                  - properties:
+                      msg:
+                        type: string
+                        example: ""
+                      data:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/mill_spec"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fail"
+components:
+  schemas:
+    bool_true:
+      type: boolean
+      example: true
+    bool_false:
+      type: boolean
+      example: false
+    err_msg:
+      type: string
+      example: Product addtion failed - possible existing record(s) OR No existing record(s)
+    fail:
+      type: object
+      properties:
+        success:
+          $ref: "#/components/schemas/bool_false"
+        msg:
+          $ref: "#/components/schemas/err_msg"
+    success:
+      type: object
+      properties:
+        success:
+          $ref: "#/components/schemas/bool_true"
+    new_product:
+      properties:
+        name:
+          type: string
+          example: Southern Red Oak
+        number:
+          type: number
+          example: 5566
+        company_id:
+          type: number
+          example: 1
+        species_name:
+          type: string
+          example: Oak
+        tract_key:
+          type: number
+          example: 1
+        mill_location:
+          type: string
+          example: Sawmill Dusters LLC
+        distance_to_mill:
+          type: number
+          example: 12.6
+        delivered_rate:
+          type: number
+          example: 77
+        mileage_rate:
+          type: number
+          example: 0.55
+        stump_rate:
+          type: number
+          example: 12.5
+        commission:
+          type: number
+          example: 1.25
+        cut_rate:
+          type: number
+          example: 1.0
+    mill_spec:
+      properties:
+        id:
+          type: number
+          example: 4
+        company_id:
+          type: number
+          example: 2
+        name:
+          type: string
+          example: Red Oak
+    existing_product:
+      allOf:
+        - properties:
+            id:
+              type: number
+              example: 6
+        - $ref: "#/components/schemas/new_product"

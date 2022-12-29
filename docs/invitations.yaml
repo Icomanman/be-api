@@ -1,0 +1,216 @@
+---
+openapi: 3.0.0
+info:
+  title: Invitations Endpoints
+  description: Invitation Flow Endpoints
+  version: 1.0.0-oas3
+tags:
+  - name: dev
+    description: Invitations Endpoints
+paths:
+  /invite/admin:
+    post:
+      tags:
+        - dev
+      summary: Inivtes an admin or mobile user
+      description: |
+        Invites an **admin** or **mobile** user - depending on the **user_type** parameter
+      parameters:
+        - name: Bearer Token
+          in: header
+          required: false
+          style: simple
+          explode: false
+          description: JSON Web Token
+          schema:
+            type: string
+            example: JWT Token
+      requestBody:
+        description: The user data
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/user_data"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/success"
+                  - properties:
+                      msg:
+                        type: string
+                        example: success
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fail"
+  /invite/{company_id}{user_id}:
+    get:
+      tags:
+        - dev
+      summary: Extracts the Invitation(s) from the database
+      description: |
+        Extracts the Invitation(s) from the database - by **company_id** or by specific **user_id** via the parameters. **ONLY ONE IS NEEDED**
+      parameters:
+        - name: Bearer Token
+          in: header
+          required: false
+          style: simple
+          explode: false
+          description: ""
+          schema:
+            type: string
+            example: JWT Token
+        - in: query
+          name: company_id
+          description: The company user id
+          schema:
+            type: integer
+            example: 1
+        - in: query
+          name: user_id
+          description: The specific user id
+          schema:
+            type: integer
+            example: 1
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/success"
+                  - properties:
+                      msg:
+                        type: string
+                        example: success.
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fail"
+  /invite/deactivate/{user_id}:
+    get:
+      tags:
+        - dev
+      summary: Deactivates the Invitation(s) from the database (soft delete)
+      description: |
+        Deactivates the Invitation(s) from the database (soft delete) by specific **user_id**.
+      parameters:
+        - name: Bearer Token
+          in: header
+          required: false
+          style: simple
+          explode: false
+          description: ""
+          schema:
+            type: string
+            example: JWT Token
+        - in: query
+          name: user_id
+          description: The specific user id
+          schema:
+            type: integer
+            example: 1
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/success"
+                  - properties:
+                      msg:
+                        type: string
+                        example: User successfully deactivated.
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fail"
+components:
+  schemas:
+    bool_true:
+      type: boolean
+      example: true
+    bool_false:
+      type: boolean
+      example: false
+    err_msg:
+      type: string
+      example: No existing record(s)
+    fail:
+      type: object
+      properties:
+        success:
+          $ref: "#/components/schemas/bool_false"
+        msg:
+          $ref: "#/components/schemas/err_msg"
+    success:
+      type: object
+      properties:
+        success:
+          $ref: "#/components/schemas/bool_true"
+    user_data:
+      required:
+        - email
+        - family_name
+        - given_name
+        - password
+      type: object
+      properties:
+        company_id:
+          type: number
+          example: 2
+        company:
+          type: string
+          example: The Rob Patrick Timbers, Inc.
+        email:
+          type: string
+          format: string
+          example: rob@timbers.com
+        given_name:
+          type: string
+          example: Rob
+        family_name:
+          type: string
+          example: Patrick
+        password:
+          type: string
+          format: password
+          example: min. 8 char
+        phone:
+          type: string
+          example: +16665554321
+        user_type:
+          type: string
+          example: admin
+    login_body:
+      type: object
+      properties:
+        email:
+          type: string
+          example: jackbruce@gmail.com
+        password:
+          type: string
+          example: inD@Wh1teRO0m!
+    token_response:
+      allOf:
+        - $ref: "#/components/schemas/success"
+        - type: object
+          properties:
+            token:
+              type: string
+              example: "...JWT Token"
+            misc:
+              type: string
+              example: "{{refresh_token}}"

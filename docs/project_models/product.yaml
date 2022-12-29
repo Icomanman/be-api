@@ -1,0 +1,42 @@
+---
+type: object
+properties:
+  id:
+    type: number
+    example: 1
+  name:
+    type: string
+    example: Southern Red Oak
+  number:
+    type: number
+    example: 5566
+  company_id:
+    type: number
+    example: 1
+  species_name:
+    type: string
+    example: Oak
+  tract_key:
+    type: number
+    example: 1
+  mill_location:
+    type: string
+    example: Sawmill Dusters LLC
+  distance_to_mill:
+    type: number
+    example: 12.6
+  delivered_rate:
+    type: number
+    example: 77
+  mileage_rate:
+    type: number
+    example: 0.55
+  stump_rate:
+    type: number
+    example: 12.5
+  commission:
+    type: number
+    example: 1.25
+  cut_rate:
+    type: number
+    example: 1.0

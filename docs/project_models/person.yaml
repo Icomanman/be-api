@@ -1,0 +1,36 @@
+---
+type: object
+required:
+  - given_name
+  - family_name
+  - email
+  - phone
+  - street
+  - city
+  - state
+  - zip
+properties:
+  given_name:
+    type: string
+    example: Roger
+  family_name:
+    type: string
+    example: Waters
+  email:
+    type: string
+    example: waters@gmail.com
+  phone:
+    type: string
+    example: +14445554321
+  street:
+    type: string
+    example: Walnut St.
+  city:
+    type: string
+    example: Seattle
+  state:
+    type: string
+    example: Washington
+  zip:
+    type: integer
+    example: 98116

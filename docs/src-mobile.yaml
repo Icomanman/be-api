@@ -1,0 +1,460 @@
+openapi: 3.0.0
+info:
+  title: Mobile Endpoints
+  description: Spruce Dev Mobile Endpoints, API available to mobile users
+  version: 1.0.0-oas3
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/micoPhD/mobile/1.0.0-oas3
+  - url: https://virtserver.swaggerhub.com/micoPhD/spruce-dev-endpoints/1.0.0
+tags:
+  - name: dev
+    description: Spruce Dev Mobile
+paths:
+  /mobile/otp:
+    post:
+      tags:
+        - dev
+      summary: OTP request endpoint
+      description: Requests an OTP and session id in exchange for phone number.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - phone
+              properties:
+                phone:
+                  type: string
+                  example: "+15555555555"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/otp_reponse"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fail"
+  /mobile/login:
+    post:
+      tags:
+        - dev
+      summary: Authenticates a user via token
+      description: A valid OTP and session id have to be sent in the request body
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/login_body"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/token_response"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fail"
+  /mobile/create-load:
+    post:
+      tags:
+        - dev
+      summary: Creates a tract load
+      parameters:
+        - name: Bearer Token
+          in: header
+          required: false
+          style: simple
+          explode: false
+          description: >-
+            Token must be valid to be able to create new load, *i.e. not
+            expired*
+          schema:
+            type: string
+            example: JWT Token
+      description: A valid OTP and session id have to be sent in the request body
+      requestBody:
+        content:
+          application/json:
+            schema:
+              required:
+                - open_date
+              allOf:
+                - $ref: "#/components/schemas/load_data"
+                - type: object
+                  properties:
+                    open_date:
+                      type: string
+                      format: string
+                      example: 2022-06-22 23:06:44 +0000 (timestamp)
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/create_load_response"
+        "400":
+          description: Bad Request - possibly already existing or not found record(s)
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/fail"
+                  - type: object
+                    properties:
+                      load_key:
+                        type: string
+                        example: 1
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fail"
+  /mobile/modify-load:
+    post:
+      tags:
+        - dev
+      summary: Modifies a tract load
+      parameters:
+        - name: Bearer Token
+          in: header
+          required: false
+          style: simple
+          explode: false
+          description: >-
+            Token must be valid to be able to modify load, *i.e. not
+            expired*
+          schema:
+            type: string
+            example: JWT Token
+      description: A valid OTP and session id have to be sent in the request body
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/modify_load_body"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/create_load_response"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fail"
+  /mobile/load-list:
+    get:
+      tags:
+        - dev
+      summary: Extracts existing tract loads
+      parameters:
+        - in: query
+          name: tract_key
+          description: The tract primary key
+          schema:
+            type: integer
+            example: 1
+        - name: Bearer Token
+          in: header
+          required: false
+          style: simple
+          explode: false
+          description: >-
+            Token must be valid to be able to extract load list, *i.e. not
+            expired*
+          schema:
+            type: string
+            example: JWT Token
+      description: Gets load list for a specific tract
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/success"
+                  - type: object
+                    properties:
+                      msg:
+                        type: string
+                        example: Load(s) successfully extracted from tract 1
+                  - type: object
+                    properties:
+                      loads:
+                        type: array
+                        items:
+                          $ref: "#/components/schemas/load_data"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fail"
+  /mobile/apply-ticket:
+    post:
+      tags:
+        - dev
+      summary: Applies ticket to an open load
+      parameters:
+        - name: Bearer Token
+          in: header
+          required: false
+          style: simple
+          explode: false
+          description: >-
+            Token must be valid to be able to extract load list, *i.e. not
+            expired*
+          schema:
+            type: string
+            example: JWT Token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              allOf:
+                - $ref: "#/components/schemas/apply_ticket_body"
+                - $ref: "#/components/schemas/ticket_misc"
+      description: Applies ticket to an open load. Once successfully applied, the load status will be set to **closed** and the tonnage will reflect on the tract.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/success"
+                  - type: object
+                    properties:
+                      msg:
+                        type: string
+                        example: Ticket successfully created
+                      ticket_key:
+                        type: string
+                        example: 1
+
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/fail"
+                  - type: object
+                    properties:
+                      ticket_key:
+                        type: string
+                        example: null
+  /mobile/upload-ticket:
+    post:
+      tags:
+        - dev
+      summary: Uploads ticket ticket image
+      parameters:
+        - in: query
+          name: tract_key
+          description: The tract primary key
+          schema:
+            type: integer
+            example: 1
+        - in: query
+          name: load_key
+          description: The load primary key
+          schema:
+            type: integer
+            example: 1
+        - name: Bearer Token
+          in: header
+          required: false
+          style: simple
+          explode: false
+          description: >-
+            Token must be valid to be able to extract load list, *i.e. not
+            expired*
+          schema:
+            type: string
+            example: JWT Token
+      requestBody:
+        content:
+          image/*:
+            schema:
+              format: binary
+      description: Uploads ticket ticket image. Image file is **optional** but could be *png*, *jpg* or *jpeg*.
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - type: object
+                    properties:
+                      success:
+                        $ref: "#/components/schemas/bool_true"
+                      msg:
+                        type: string
+                        example: Ticket upload successful
+                  - $ref: "#/components/schemas/ticket_misc"
+
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fail"
+components:
+  schemas:
+    bool_true:
+      type: boolean
+      example: true
+    bool_false:
+      type: boolean
+      example: false
+    err_msg:
+      type: string
+      example: error message
+    fail:
+      type: object
+      properties:
+        success:
+          $ref: "#/components/schemas/bool_false"
+        msg:
+          $ref: "#/components/schemas/err_msg"
+    success:
+      type: object
+      properties:
+        success:
+          $ref: "#/components/schemas/bool_true"
+    load_data:
+      required:
+        - tract_key
+        - product_id
+        - species_id
+        - trucking_co
+        - driver
+      type: object
+      properties:
+        tract_key:
+          type: number
+          example: 1
+        product_id:
+          type: number
+          example: 1
+        species_id:
+          type: number
+          example: 4
+        trucking_co:
+          type: string
+          format: string
+          example: Red Dragons LLC
+        driver:
+          type: string
+          format: string
+          example: Hoshino
+    login_body:
+      type: object
+      required:
+        - phone
+        - OTP
+        - session
+      properties:
+        phone:
+          type: string
+          example: "+15555555555"
+        otp:
+          type: string
+          example: 5678
+        session:
+          type: string
+          example: session id string
+    token_response:
+      allOf:
+        - $ref: "#/components/schemas/success"
+        - type: object
+          properties:
+            token:
+              type: string
+              example: "{{JWT access token}}"
+            misc:
+              type: string
+              example: "{{JWT refresh token}}"
+    otp_reponse:
+      allOf:
+        - $ref: "#/components/schemas/success"
+        - $ref: "#/components/schemas/login_body"
+    modify_load_body:
+      required:
+        - load_key
+      type: object
+      allOf:
+        - type: object
+          properties:
+            load_key:
+              type: number
+              example: 1
+        - $ref: "#/components/schemas/load_data"
+    create_load_response:
+      allOf:
+        - $ref: "#/components/schemas/success"
+        - type: object
+          properties:
+            msg:
+              type: string
+              example: Load successfuly created/modified
+            load_key:
+              type: number
+              example: 1
+    apply_ticket_body:
+      required:
+        - load_key
+        - tract_key
+        - date
+        - number
+        - tonnage
+        - tag
+        - version
+        - file_name
+      properties:
+        load_key:
+          type: number
+          example: 1
+        tract_key:
+          type: number
+          example: 1
+        date:
+          type: string
+          example: 2022-06-24 20:15:23 +0000 (timestamp)
+        number:
+          type: number
+          example: 5566
+        tonnage:
+          type: number
+          example: 12.5
+    ticket_misc:
+      properties:
+        file_name:
+          type: string
+          example: 1_1_1656021689.png ({tract_key}_{load_key}_{timestamp}
+        tag:
+          type: string
+          example: e7187342535b392cfb71f29216b05e81
+        version:
+          type: string
+          example: HhgqqmRsmbYCmoGqSMX9XYFFIM_hCJkh

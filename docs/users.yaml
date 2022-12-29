@@ -1,0 +1,270 @@
+---
+openapi: 3.0.0
+info:
+  title: Users
+  description: User Data Endpoints
+  version: 1.0.0-oas3
+tags:
+  - name: dev
+    description: User Endpoints
+paths:
+  /users/company:
+    post:
+      tags:
+        - dev
+      summary: Adds a company user - the super admin
+      description: |
+        Adds a company user (super admin)
+      parameters:
+        - name: Bearer Token
+          in: header
+          required: false
+          style: simple
+          explode: false
+          description: JSON Web Token
+          schema:
+            type: string
+            example: JWT Token
+      requestBody:
+        description: The user data
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/user_data"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/success"
+                  - properties:
+                      msg:
+                        type: string
+                        example: User successfully added.
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fail"
+  /users/new:
+    post:
+      tags:
+        - dev
+      summary: Adds an admin or mobile user - via invitation of another admin user
+      description: |
+        Adds an admin or mobile user from invitation, depending on the **user_type** parameter.
+      parameters:
+        - name: Bearer Token
+          in: header
+          required: false
+          style: simple
+          explode: false
+          description: ""
+          schema:
+            type: string
+            example: JWT Token
+      requestBody:
+        description: User data - company id is required in which the new user would be assigned to
+        content:
+          application/json:
+            schema:
+              allOf:
+                - properties:
+                    company_id:
+                      type: number
+                      example: 2
+                - $ref: "#/components/schemas/user_data"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/success"
+                  - properties:
+                      msg:
+                        type: string
+                        example: User successfully added.
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fail"
+  /users/modify:
+    post:
+      tags:
+        - dev
+      summary: Updates an admin or mobile user. Needs the existing id.
+      description: |
+        Updates an admin or mobile user, depending on the **user_type** parameter. Needs the existing *user_id* (**id**).
+      parameters:
+        - name: Bearer Token
+          in: header
+          required: false
+          style: simple
+          explode: false
+          description: ""
+          schema:
+            type: string
+            example: JWT Token
+      requestBody:
+        description: User data - company id is required in which the new user would be assigned to
+        content:
+          application/json:
+            schema:
+              allOf:
+                - properties:
+                    id:
+                      type: number
+                      example: 4
+                    company_id:
+                      type: number
+                      example: 2
+                - $ref: "#/components/schemas/user_data"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/success"
+                  - properties:
+                      msg:
+                        type: string
+                        example: User successfully added.
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fail"
+  /users/delete:
+    delete:
+      tags:
+        - dev
+      summary: Deletes a user from the database
+      description: |
+        Deletes a user from the database - **permanent deletion** from the database and the user pool
+      parameters:
+        - name: Bearer Token
+          in: header
+          required: false
+          style: simple
+          explode: false
+          description: JSON Web Token
+          schema:
+            type: string
+            example: JWT Token
+      requestBody:
+        description: The user id and type
+        content:
+          application/json:
+            schema:
+              required:
+                - id
+                - type
+              properties:
+                id:
+                  type: number
+                  example: 2
+                type:
+                  type: string
+                  example: admin (or mobile)
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/success"
+                  - properties:
+                      msg:
+                        type: string
+                        example: User successfully deleted.
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fail"
+components:
+  schemas:
+    bool_true:
+      type: boolean
+      example: true
+    bool_false:
+      type: boolean
+      example: false
+    err_msg:
+      type: string
+      example: No existing record(s)
+    fail:
+      type: object
+      properties:
+        success:
+          $ref: "#/components/schemas/bool_false"
+        msg:
+          $ref: "#/components/schemas/err_msg"
+    success:
+      type: object
+      properties:
+        success:
+          $ref: "#/components/schemas/bool_true"
+    user_data:
+      required:
+        - email
+        - family_name
+        - given_name
+        - password
+      type: object
+      properties:
+        company:
+          type: string
+          example: The Rob Patrick Timbers, Inc.
+        email:
+          type: string
+          format: string
+          example: rob@timbers.com
+        given_name:
+          type: string
+          example: Rob
+        family_name:
+          type: string
+          example: Patrick
+        password:
+          type: string
+          format: password
+          example: min. 8 char
+        phone:
+          type: string
+          example: +16665554321
+        user_type:
+          type: string
+          example: admin
+    login_body:
+      type: object
+      properties:
+        email:
+          type: string
+          example: jackbruce@gmail.com
+        password:
+          type: string
+          example: inD@Wh1teRO0m!
+    token_response:
+      allOf:
+        - $ref: "#/components/schemas/success"
+        - type: object
+          properties:
+            token:
+              type: string
+              example: "...JWT Token"
+            misc:
+              type: string
+              example: "{{refresh_token}}"

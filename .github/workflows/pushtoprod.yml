@@ -1,0 +1,37 @@
+name: Push-to-Prod
+
+on:
+  push:
+    branches:
+      - test-flight
+      - production
+  pull_request:
+    branches:
+      - feature/*
+      - fix/*
+jobs:
+  deploy:
+    name: Push to Multiple EC2 Instances
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout the code
+        uses: actions/checkout@v1
+
+      - name: Deploy to my EC2 instance 1 (spruce-prod-01)
+        uses: easingthemes/ssh-deploy@v2.1.5
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          SOURCE: "./"
+          REMOTE_HOST: "44.193.178.151"
+          REMOTE_USER: "ubuntu"
+          TARGET: "/home/ubuntu/spruce-api"
+
+      - name: Deploy to my EC2 instance 2 (spruce-prod-02)
+        uses: easingthemes/ssh-deploy@v2.1.5
+        env:
+          SSH_PRIVATE_KEY: ${{ secrets.EC2_SSH_KEY }}
+          SOURCE: "./"
+          REMOTE_HOST: "54.164.7.96"
+          REMOTE_USER: "ubuntu"
+          TARGET: "/home/ubuntu/spruce-api"

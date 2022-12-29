@@ -1,0 +1,36 @@
+---
+type: object
+required:
+  - name
+  - contact
+  - email
+  - phone
+  - street
+  - city
+  - state
+  - zip
+properties:
+  name:
+    type: string
+    example: Timber Consultants, Inc.
+  contact:
+    type: string
+    example: Eric Clapton
+  email:
+    type: string
+    example: ec@timber.com
+  phone:
+    type: string
+    example: +18887776543
+  street:
+    type: string
+    example: 80th St.
+  city:
+    type: string
+    example: Virginia Beach
+  state:
+    type: string
+    example: Virginia
+  zip:
+    type: integer
+    example: 23451

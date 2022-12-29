@@ -1,0 +1,199 @@
+---
+openapi: 3.0.0
+info:
+  title: Login Flow Endpoints
+  description: Login Flow Endpoints
+  version: 1.0.0-oas3
+servers:
+  - url: https://virtserver.swaggerhub.com/micoPhD/spruce-dev-endpoints/1.0.0
+tags:
+  - name: dev
+    description: Login Endpoints
+paths:
+  /api/auth:
+    get:
+      tags:
+        - dev
+      summary: Authenticates a user via token
+      description: |
+        Used for cases where a user needs to be authenticated but not necessarily needing to login (e.g. get user’s information). 
+
+        A valid token has to be sent in the request headers (authorization) as a Bearer Token
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/user_data"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fail"
+  /api/login:
+    post:
+      tags:
+        - dev
+      summary: User login endpoint
+      description: |
+        Handles user login in 2 ways:
+
+        1). By checking bearer token against Cognito. Directly authenticates the user if token is (still) valid, i.e., email and password will no longer be checked; and 
+
+        2). If token is invalid or not sent, email and password are checked against Cognito User Pools and generates new token in exchange for valid credentials. 
+        For first time users, passwords need to be changed via the /api/reset-password endpoint
+      operationId: searchInventory
+      parameters:
+        - name: Bearer Token
+          in: header
+          required: false
+          style: simple
+          explode: false
+          description: Token may be used in lieu of email and password
+          schema:
+            type: string
+            example: JWT Token
+      requestBody:
+        description: Required for first-time login or when token is expired
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/login_body"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/success"
+                  - $ref: "#/components/schemas/token_response"
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fail"
+  /api/register:
+    post:
+      tags:
+        - dev
+      summary: User registration endpoint
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/user_data"
+      responses:
+        "200":
+          description: Succes
+          content:
+            application/json:
+              schema:
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  msg:
+                    type: string
+                    example: jackbruce@gmail.com added to users.
+        "401":
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/fail"
+  /api/resend-code:
+    post:
+      tags:
+        - dev
+      summary: Endpoint to request code for newly-registered (UNCONFIRMED) users.
+      description: A 6-digit code will be sent to the user's email
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/login_body"
+      responses:
+        "200":
+          description: Success
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: "#/components/schemas/success"
+        "400":
+          description: Unauthorized
+components:
+  schemas:
+    bool_true:
+      type: boolean
+      example: true
+    bool_false:
+      type: boolean
+      example: false
+    err_msg:
+      type: string
+      example: error message
+    fail:
+      type: object
+      properties:
+        success:
+          $ref: "#/components/schemas/bool_false"
+        msg:
+          $ref: "#/components/schemas/err_msg"
+    success:
+      type: object
+      properties:
+        success:
+          $ref: "#/components/schemas/bool_true"
+    user_data:
+      required:
+        - email
+        - family_name
+        - given_name
+        - password
+      type: object
+      properties:
+        given_name:
+          type: string
+          example: Jack
+        family_name:
+          type: string
+          example: Bruce
+        email:
+          type: string
+          format: string
+          example: jackbruce@gmail.com
+        password:
+          type: string
+          format: password
+          example: min. 8 char
+        phone:
+          type: string
+          example: +16665554321
+        user_type:
+          type: string
+          example: admin
+        company:
+          type: string
+          example: Timber Rockers
+    login_body:
+      type: object
+      properties:
+        email:
+          type: string
+          example: jackbruce@gmail.com
+        password:
+          type: string
+          example: inD@Wh1teRO0m!
+    token_response:
+      allOf:
+        - $ref: "#/components/schemas/success"
+        - type: object
+          properties:
+            token:
+              type: string
+              example: "...JWT Token"

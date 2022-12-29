@@ -1,0 +1,35 @@
+type: object
+required:
+  - name
+  - contact
+  - email
+  - phone
+  - street
+  - city
+  - state
+  - zip
+properties:
+  name:
+    type: string
+    example: Tract Holdings LLC.
+  contact:
+    type: string
+    example: Ginger Baker
+  email:
+    type: string
+    example: gbaker@tracts.com
+  phone:
+    type: string
+    example: +17775554321
+  street:
+    type: string
+    example: Center St.
+  city:
+    type: string
+    example: Des Moines
+  state:
+    type: string
+    example: Iowa
+  zip:
+    type: integer
+    example: 50309

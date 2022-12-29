@@ -1,0 +1,9 @@
+/.vscode
+/node_modules
+/tmp
+/prod
+
+*.env
+*.log
+*.sh
+*compiled.*
